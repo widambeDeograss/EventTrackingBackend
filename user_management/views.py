@@ -58,7 +58,8 @@ class LoginView(APIView):
             user_info = UserSerializer(instance=user_id, many=False).data
             response = {
                 'token': get_user_token(user_id),
-                'user': user_info
+                'user': user_info,
+                'success': True
             }
 
             return Response(response)

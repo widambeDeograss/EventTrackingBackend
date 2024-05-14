@@ -53,9 +53,10 @@ class FollowView(APIView):
             serialized = FollowGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         elif querytype == "single":
-            followId = request.GET.get("followId")
-            queryset = Follow.objects.get(id=followId)
-            serialized = FollowGetSerializer(instance=queryset, many=False)
+            followId = request.GET.get("userId")
+            following = Follow.objects.get(follower=followId).count()
+            followers = Follow.objects.get()
+            serialized = FollowGetSerializer(instance=following, many=False)
             return Response(serialized.data)
         else:
             return Response({"message": "Specify the querying type"})
@@ -109,9 +110,38 @@ class CommentView(APIView):
             serialized = CommentGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         elif querytype == "single":
-            commentId = request.GET.get("commentId")
-            queryset = Comment.objects.get(id=commentId)
-            serialized = CommentGetSerializer(instance=queryset, many=False)
+            commentId = request.GET.get("eventId")
+            queryset = Comment.objects.filter(event=commentId)
+            serialized = CommentGetSerializer(instance=queryset, many=True)
+            return Response(serialized.data)
+        else:
+            return Response({"message": "Specify the querying type"})
+
+
+class TicketView(APIView):
+    permission_classes = [AllowAny]
+
+    @staticmethod
+    def post(request):
+        data = request.data
+        serialized = TicketPostSerializer(data=data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response({"save": True})
+        return Response({"save": False, "error": serialized.errors})
+
+    @staticmethod
+    def get(request):
+        querytype = request.GET.get("querytype")
+        if querytype == "all":
+            queryset = Ticket.objects.all()
+            serialized = TicketGetSerializer(instance=queryset, many=True)
+            return Response(serialized.data)
+        elif querytype == "single":
+            userId = request.GET.get("userId")
+            queryset = Ticket.objects.filter(user=userId)
+            print(queryset)
+            serialized = TicketGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         else:
             return Response({"message": "Specify the querying type"})

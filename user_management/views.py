@@ -50,7 +50,7 @@ class LoginView(APIView):
     def post(request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print('Data: ', username, password)
+        # print('Data: ', username, password)
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
@@ -84,13 +84,18 @@ class UserInformation(APIView):
         if query_type == 'single':
             try:
                 user_id = request.GET.get('user_id')
+                print(user_id)
                 user = User.objects.get(id=user_id)
+                print(user)
             except User.DoesNotExist:
                 return Response({'message': 'User Does Not Exist'})
             return Response(UserSerializer(instance=user, many=False).data)
 
         elif query_type == 'all':
             queryset = User.objects.all()
+            return Response(UserSerializer(instance=queryset, many=True).data)
+        elif query_type == 'artists':
+            queryset = User.objects.filter(role=2)
             return Response(UserSerializer(instance=queryset, many=True).data)
 
         else:

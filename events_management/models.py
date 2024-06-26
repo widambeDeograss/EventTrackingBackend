@@ -11,7 +11,7 @@ class Event(models.Model):
     description = models.TextField()
     location = models.CharField(max_length=255)
     date_time = models.DateTimeField()
-    artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
+    artists = models.ManyToManyField(User, related_name='events')
     created_at = models.DateTimeField(auto_now_add=True)
     profile = models.ImageField(upload_to="uploads/", null=True, blank=True)
     tickets_amount = models.BigIntegerField(default=100)
@@ -26,14 +26,12 @@ class Event(models.Model):
 class Ticket(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
     created_at = models.DateTimeField(auto_now_add=True)
     number = models.IntegerField()
     amount = models.BigIntegerField()
     is_active = models.BooleanField(default=True)
 
-    class Meta:
-        unique_together = ['user', 'event']
 
 
 class Like(models.Model):
@@ -79,3 +77,4 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comment by {self.user.username} on {self.event.name}'
 
+# https://themeforest.net/search/react%20dashboard%20with%20tailwind?page=2#content

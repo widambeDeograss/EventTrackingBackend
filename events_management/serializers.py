@@ -37,10 +37,20 @@ class TicketGetSerializer(serializers. ModelSerializer):
         depth = 2
 
 
-class EventPostSerializer(serializers.Serializer):
+class EventSerializer(serializers.ModelSerializer):
+    artist_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), source='artists')
+
     class Meta:
         model = Event
-        fields = ['id', 'name', 'description', 'location', 'date_time', 'artist', 'tickets_amount', 'profile']
+        fields = ['id', 'name', 'description', 'location', 'date_time', 'artist_ids', 'created_at', 'profile',
+                  'tickets_amount', 'likes_count', 'type', 'price']
+        read_only_fields = ['id', 'created_at', 'likes_count']
+
+    def create(self, validated_data):
+        artists_data = validated_data.pop('artists')
+        event = Event.objects.create(**validated_data)
+        event.artists.set(artists_data)
+        return event
 
 
 class FollowPostSerializer(serializers.ModelSerializer):
@@ -65,3 +75,13 @@ class TicketPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ['id', 'user', 'event', 'amount', 'number', 'is_active']
+
+
+class SystemStatsSerializer(serializers.Serializer):
+    total_users = serializers.IntegerField()
+    total_events = serializers.IntegerField()
+    total_tickets_sold = serializers.IntegerField()
+    total_artists = serializers.IntegerField()
+    total_follows = serializers.IntegerField()
+    total_comments = serializers.IntegerField()
+    total_notifications = serializers.IntegerField()

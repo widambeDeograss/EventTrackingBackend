@@ -11,7 +11,7 @@ class EventView(APIView):
     @staticmethod
     def post(request):
         data = request.data
-        serialized = EventPostSerializer(data=data)
+        serialized = EventSerializer(data=data)
         if serialized.is_valid():
             serialized.save()
             return Response({"save": True})
@@ -53,11 +53,15 @@ class FollowView(APIView):
             serialized = FollowGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         elif querytype == "single":
-            followId = request.GET.get("userId")
-            following = Follow.objects.get(follower=followId).count()
-            followers = Follow.objects.get()
-            serialized = FollowGetSerializer(instance=following, many=False)
-            return Response(serialized.data)
+            userId = request.GET.get("userId")
+            following = Follow.objects.filter(follower=userId).count()
+            followers = Follow.objects.filter(artist=userId).count()
+            data = {
+                'followers': followers,
+                'following': following
+            }
+            # serialized = FollowGetSerializer(instance=following, many=False)
+            return Response(data)
         else:
             return Response({"message": "Specify the querying type"})
 
@@ -176,3 +180,31 @@ class UnlikeEvent(APIView):
             return Response({"message": "Event unliked successfully"})
         else:
             return Response({"message": "You have not liked this event"}, status=400)
+
+
+class SystemStatsView(APIView):
+    permission_classes = [AllowAny]
+
+    @staticmethod
+    def get(request):
+        total_users = User.objects.count()
+        total_artists = User.objects.filter(role=2).count()
+        total_events = Event.objects.count()
+        total_tickets_sold = Ticket.objects.filter(is_active=True).count()
+        total_likes = Like.objects.count()
+        total_follows = Follow.objects.count()
+        total_comments = Comment.objects.count()
+        total_notifications = Notification.objects.count()
+
+        stats = {
+            'total_users': total_users,
+            'total_events': total_events,
+            'total_tickets_sold': total_tickets_sold,
+            'total_artists': total_artists,
+            'total_follows': total_follows,
+            'total_comments': total_comments,
+            'total_notifications': total_notifications,
+        }
+
+        serializer = SystemStatsSerializer(stats)
+        return Response(serializer.data)

@@ -52,6 +52,14 @@ class EventSerializer(serializers.ModelSerializer):
         event.artists.set(artists_data)
         return event
 
+    def update(self, instance, validated_data):
+        artists_data = validated_data.pop('artists', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if artists_data is not None:
+            instance.artists.set(artists_data)
+        instance.save()
+        return instance
 
 class FollowPostSerializer(serializers.ModelSerializer):
     class Meta:

@@ -61,6 +61,7 @@ class EventSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class FollowPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow

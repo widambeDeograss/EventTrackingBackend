@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Event, Follow, Notification, Comment, Ticket
+from .models import User, Event, Follow, Notification, Comment, Ticket,EventSetupRequest
 
 
 class EventGetSerializer(serializers.ModelSerializer):
@@ -21,6 +21,14 @@ class NotificationGetSerializer(serializers.ModelSerializer):
         model = Notification
         fields = "__all__"
         depth = 2
+
+
+class EventSetupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventSetupRequest
+        fields = "__all__"
+        depth = 2
+
 
 
 class CommentGetSerializer(serializers.ModelSerializer):

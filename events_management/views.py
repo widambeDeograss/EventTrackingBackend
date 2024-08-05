@@ -1,9 +1,23 @@
 from rest_framework import status
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Event, Follow, Notification, Comment, Like
 from .serializers import *
+
+
+class EventSetupViewSet(ListCreateAPIView):
+    queryset = EventSetupRequest.objects.all()
+    serializer_class = EventSetupSerializer
+
+    def perform_create(self, serializer):
+        print(self.request.data)
+        print(self.request.data.get('artist'), "--------------------------------------")
+        artist_id = self.request.data.get('artist')
+        if artist_id is None:
+            raise ValueError("artist ID cannot be null")
+        serializer.save(artist_id=artist_id)
 
 
 class EventView(APIView):
